@@ -1,7 +1,7 @@
 models/cnn/results
 models/cnn/results_past
 models/gbdt/results
-models/cnn/results_past
+models/gbdt/results_past
 results
 local
 original_data
