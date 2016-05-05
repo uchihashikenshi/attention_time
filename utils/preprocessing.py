@@ -171,8 +171,8 @@ class Preprocessing():
                             category_input_sum.append(numpy.array([input_sum]))
 
                             data_num += 1
-                            sys.stdout.write("\r%d data created" % data_num)
-                            sys.stdout.flush()
+                            # sys.stdout.write("\r%d data created" % data_num)
+                            # sys.stdout.flush()
 
             category_input_ts_dict.update({data_type: category_input_ts})
             category_label_dict.update({data_type: category_label})
@@ -224,25 +224,25 @@ class Preprocessing():
         実験の再現性確保のため, kfoldのcvを複数回行うデータセットを全て保存しておく.
         """
 
-        for test_index in xrange(test_num):
+        # for test_index in xrange(test_num):
+        #     #
+        #     # os.mkdir(save_dir + '%s_test' % test_index)
+        #     if shuffle:
+        #         train_x, train_y, test_x, test_y = self.make_shuffle_k_folds_data(x, y, k_folds, rand)
+        #
+        #         for k in xrange(k_folds):
+        #             fold_dir = save_dir + '%s_test/%s_fold/' % (test_index, k)
+        #             os.mkdir(fold_dir)
+        #             numpy.savez(fold_dir + '%s_train.npz' % k, x=train_x[k], y=train_y[k])
+        #             numpy.savez(fold_dir + '%s_test.npz' % k, x=test_x[k], y=test_y[k])
+        #     else:
+        train_x, test_x = x['train'], x['test']
+        train_y, test_y = y['train'], y['test']
 
-            os.mkdir(save_dir + '%s_test' % test_index)
-            if shuffle:
-                train_x, train_y, test_x, test_y = self.make_shuffle_k_folds_data(x, y, k_folds, rand)
-
-                for k in xrange(k_folds):
-                    fold_dir = save_dir + '%s_test/%s_fold/' % (test_index, k)
-                    os.mkdir(fold_dir)
-                    numpy.savez(fold_dir + '%s_train.npz' % k, x=train_x[k], y=train_y[k])
-                    numpy.savez(fold_dir + '%s_test.npz' % k, x=test_x[k], y=test_y[k])
-            else:
-                train_x, test_x = x['train'], x['test']
-                train_y, test_y = y['train'], y['test']
-
-                fold_dir = save_dir + 'page_shuffle/'
-                os.mkdir(fold_dir)
-                numpy.savez(fold_dir + 'train.npz', x=train_x[k], y=train_y[k])
-                numpy.savez(fold_dir + 'test.npz', x=test_x[k], y=test_y[k])
+        fold_dir = save_dir + 'page_shuffle/'
+        os.mkdir(fold_dir)
+        numpy.savez(fold_dir + 'train.npz', x=train_x, y=train_y)
+        numpy.savez(fold_dir + 'test.npz', x=test_x, y=test_y)
 
     def balancing_sampling(self, x, label):
 
