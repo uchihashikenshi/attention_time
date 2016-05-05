@@ -131,13 +131,17 @@ class Preprocessing():
 
         return category_started_ts_dict
 
-    def make_supervised_data(self, category_started_ts_dict, stride=5, input_dim=30):
+    def make_supervised_data(self, category_started_ts_dict, output_dim, stride=5, input_dim=30):
 
         category_input_ts_dict, category_label_dict, category_input_sum_dict = {}, {}, {}
         for data_type in ['train', 'test']:
 
             category_input_ts, category_label, category_input_sum = [], [], []
             target_dim = 2 * input_dim
+
+            label_dim = input_dim / output_dim
+            if input_dim % output_dim != 0:
+                print "label_dim=%s: error" % label_dim
             data_num = 0
             for started_ts in category_started_ts_dict[data_type]:
 
@@ -155,18 +159,21 @@ class Preprocessing():
 
                         if input_average > 2:
 
+                            label_ls = []
                             input_ts = target_ts[:input_dim]
-                            output_ts = target_ts[input_dim:]
-                            output_average = numpy.average(output_ts)
+                            for dim in xrange(output_dim):
+                                output_ts = target_ts[input_dim + label_dim * (dim - 1):input_dim + label_dim * dim]
+                                output_average = numpy.average(output_ts)
 
-                            # 二値分類
-                            if input_average < output_average:
-                                label = 1.0
-                            else:
-                                label = 0.0
+                                # 二値分類
+                                if input_average < output_average:
+                                    label = 1.0
+                                else:
+                                    label = 0.0
+                                label_ls.append(label)
 
                             category_input_ts.append(input_ts)
-                            category_label.append(label)
+                            category_label.append(label_ls)
                             # inputの総bookmark数はいらないけどモデルを分ける要因である可能性があるので解析のため残す
                             category_input_sum.append(numpy.array([input_sum]))
 
@@ -219,7 +226,7 @@ class Preprocessing():
 
         return train_x, train_y, test_x, test_y
 
-    def make_test_dataset(self, x, y, save_dir, test_num=10, k_folds=5, rand=False, shuffle=False):
+    def make_test_dataset(self, x, y, save_dir, output_dim, test_num=10, k_folds=5, rand=False, shuffle=False):
         """
         実験の再現性確保のため, kfoldのcvを複数回行うデータセットを全て保存しておく.
         """
@@ -240,7 +247,9 @@ class Preprocessing():
         train_y, test_y = y['train'], y['test']
 
         fold_dir = save_dir + 'page_shuffle/'
+        type_dir = save_dir + 'page_shuffle/output_dim=%s/' % output_dim
         os.mkdir(fold_dir)
+        os.mkdir(type_dir)
         numpy.savez(fold_dir + 'train.npz', x=train_x, y=train_y)
         numpy.savez(fold_dir + 'test.npz', x=test_x, y=test_y)
 
