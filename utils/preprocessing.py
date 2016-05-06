@@ -249,9 +249,7 @@ class Preprocessing():
         train_y, test_y = y['train'], y['test']
         train_target_ts, test_target_ts = target_ts_dict['train'], target_ts_dict['test']
 
-        fold_dir = save_dir + 'page_shuffle/'
-        type_dir = save_dir + 'page_shuffle/output_dim=%s/' % output_dim
-        os.mkdir(fold_dir)
+        type_dir = save_dir + 'output_dim=%s/' % output_dim
         os.mkdir(type_dir)
         numpy.savez(type_dir + 'train.npz', x=train_x, y=train_y)
         numpy.savez(type_dir + 'test.npz', x=test_x, y=test_y)
