@@ -131,13 +131,6 @@ class Preprocessing():
 
         return category_started_ts_dict
 
-    def shuffle(self, data):
-        index_ls = range(len(data))
-        random.shuffle(index_ls)
-        shuffle_data = data[index_ls]
-
-        return shuffle_data
-
     def make_supervised_data(self, category_started_ts_dict, output_dim, stride=5, input_dim=30):
 
         category_input_ts_dict, category_label_dict, category_target_ts_dict, category_input_sum_dict = {}, {}, {}, {}
@@ -189,10 +182,13 @@ class Preprocessing():
                             # sys.stdout.write("\r%d data created" % data_num)
                             # sys.stdout.flush()
 
-            category_input_ts_dict.update({data_type: category_input_ts})
-            category_label_dict.update({data_type: category_label})
-            category_target_ts_dict.update({data_type: category_target_ts})
-            category_input_sum_dict.update({data_type: category_input_sum})
+            index_ls = range(len(category_input_ts))
+            random.shuffle(index_ls)
+
+            category_input_ts_dict.update({data_type: numpy.array(category_input_ts)[index_ls]})
+            category_label_dict.update({data_type: numpy.array(category_label)[index_ls]})
+            category_target_ts_dict.update({data_type: numpy.array(category_target_ts)[index_ls]})
+            category_input_sum_dict.update({data_type: numpy.array(category_input_sum)[index_ls]})
 
         return category_input_ts_dict, category_label_dict, category_target_ts_dict, category_input_sum_dict
 
