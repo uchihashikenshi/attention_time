@@ -131,6 +131,13 @@ class Preprocessing():
 
         return category_started_ts_dict
 
+    def shuffle(self, data):
+        index_ls = range(len(data))
+        random.shuffle(index_ls)
+        shuffle_data = data[index_ls]
+
+        return shuffle_data
+
     def make_supervised_data(self, category_started_ts_dict, output_dim, stride=5, input_dim=30):
 
         category_input_ts_dict, category_label_dict, category_target_ts_dict, category_input_sum_dict = {}, {}, {}, {}
