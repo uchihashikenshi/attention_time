@@ -1,3 +1,6 @@
+multi_models/cnn/results
+multi_models/gbdt/results
+
 models/cnn/results
 models/cnn/results_past
 models/gbdt/results
