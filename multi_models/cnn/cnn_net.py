@@ -25,8 +25,6 @@ class tsCNN_net(chainer.Chain):
 
         self.loss = F.sigmoid_cross_entropy(y, t)
 
-        print self.loss.data
-
         accuracy = []
         y_ = F.array.split_axis.split_axis(y, self.output_dim, 1)
         t_ = F.array.split_axis.split_axis(t, self.output_dim, 1)

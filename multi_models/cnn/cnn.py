@@ -1,3 +1,5 @@
+# coding:utf-8
+
 from __future__ import print_function
 import argparse
 import time
@@ -62,9 +64,6 @@ class CNN(object):
                 x = chainer.Variable(numpy.asarray(train_x[perm[i:i + self.batchsize]]))
                 t = chainer.Variable(numpy.asarray(train_y[perm[i:i + self.batchsize]]))
 
-                print(x.data)
-                print(t.data)
-
                 # Pass the loss function (Classifier defines it) and its arguments
                 optimizer.update(model, x, t)
 
@@ -87,20 +86,26 @@ class CNN(object):
             loss_txt.flush()
 
             # evaluation
-            sum_accuracy = 0
+            sum_accuracy = [0 for i in xrange(output_dim)]
             sum_loss = 0
             for i in six.moves.range(0, N_test, self.batchsize):
-                x = chainer.Variable(numpy.asarray(test_x[i:i + self.batchsize]),
-                                     volatile='on')
-                t = chainer.Variable(numpy.asarray(test_y[i:i + self.batchsize]),
-                                     volatile='on')
+                # volatile='on' is not needed?
+                x = chainer.Variable(numpy.asarray(test_x[i:i + self.batchsize]))
+                t = chainer.Variable(numpy.asarray(test_y[i:i + self.batchsize]))
                 loss = model(x, t)
                 sum_loss += float(loss.data) * len(t.data)
-                sum_accuracy += float(model.accuracy.data) * len(t.data)
+                for label_ind, accuracy_label in enumerate(model.accuracy):
+                    sum_accuracy[label_ind] += float(accuracy_label.data) * len(t.data)
 
             print('test  mean loss={}, accuracy={}'.format(
-                sum_loss / N_test, sum_accuracy / N_test))
-            acc_txt.write("%d\t%f\n" % (epoch, sum_accuracy / N_test))
+                sum_loss / N_test, numpy.array(sum_accuracy).astype(numpy.float32) / N_test))
+
+            acc_txt.write("%d\t" % epoch)
+            for i, acc in enumerate(numpy.array(sum_accuracy).astype(numpy.float32) / N_test):
+                if i == output_dim - 1:
+                    acc_txt.write("%f\n" % acc)
+                else:
+                    acc_txt.write("%f\t" % acc)
             acc_txt.flush()
 
         # Save the model and the optimizer
