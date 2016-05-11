@@ -57,9 +57,9 @@ class Preprocessing():
                 continue
 
             elif 0 < i < 500001:
-                if i % 1000 == 0:
-                    sys.stdout.write("\r%d web page ended" % i)
-                    sys.stdout.flush()
+                # if i % 1000 == 0:
+                #     sys.stdout.write("\r%d web page ended" % i)
+                #     sys.stdout.flush()
 
                 list.append(line.split(" "))
                 sum = int(list[i-1][0])
@@ -109,9 +109,9 @@ class Preprocessing():
             category_started_ts = []
             for i, ts in enumerate(category_ts_dict[data_type]):
 
-                if i % 100 == 0:
-                    sys.stdout.write("\r%d" % i)
-                    sys.stdout.flush()
+                # if i % 100 == 0:
+                #     sys.stdout.write("\r%d" % i)
+                #     sys.stdout.flush()
 
                 start_flag = 0  # bookmarkが開始したかフラグ
                 started_ts = []  # bookmark開始以降の時系列を取得
@@ -131,13 +131,17 @@ class Preprocessing():
 
         return category_started_ts_dict
 
-    def make_supervised_data(self, category_started_ts_dict, stride=5, input_dim=30):
+    def make_supervised_data(self, category_started_ts_dict, output_dim, stride=5, input_dim=30):
 
-        category_input_ts_dict, category_label_dict, category_input_sum_dict = {}, {}, {}
+        category_input_ts_dict, category_label_dict, category_target_ts_dict, category_input_sum_dict = {}, {}, {}, {}
         for data_type in ['train', 'test']:
 
-            category_input_ts, category_label, category_input_sum = [], [], []
+            category_input_ts, category_label, category_target_ts, category_input_sum = [], [], [], []
             target_dim = 2 * input_dim
+
+            label_dim = input_dim / output_dim
+            if input_dim % output_dim != 0:
+                print "label_dim=%s: error" % label_dim
             data_num = 0
             for started_ts in category_started_ts_dict[data_type]:
 
@@ -155,18 +159,22 @@ class Preprocessing():
 
                         if input_average > 2:
 
+                            label_ls = []
                             input_ts = target_ts[:input_dim]
-                            output_ts = target_ts[input_dim:]
-                            output_average = numpy.average(output_ts)
+                            for dim in xrange(output_dim):
+                                output_ts = target_ts[input_dim + label_dim * dim:input_dim + label_dim * (dim + 1)]
+                                output_average = numpy.average(output_ts)
 
-                            # 二値分類
-                            if input_average < output_average:
-                                label = 1.0
-                            else:
-                                label = 0.0
+                                # 二値分類
+                                if input_average < output_average:
+                                    label = 1.0
+                                else:
+                                    label = 0.0
+                                label_ls.append(label)
 
                             category_input_ts.append(input_ts)
-                            category_label.append(label)
+                            category_label.append(label_ls)
+                            category_target_ts.append(target_ts)
                             # inputの総bookmark数はいらないけどモデルを分ける要因である可能性があるので解析のため残す
                             category_input_sum.append(numpy.array([input_sum]))
 
@@ -174,11 +182,15 @@ class Preprocessing():
                             # sys.stdout.write("\r%d data created" % data_num)
                             # sys.stdout.flush()
 
-            category_input_ts_dict.update({data_type: category_input_ts})
-            category_label_dict.update({data_type: category_label})
-            category_input_sum_dict.update({data_type: category_input_sum})
+            index_ls = range(len(category_input_ts))
+            random.shuffle(index_ls)
 
-        return category_input_ts_dict, category_label_dict, category_input_sum_dict
+            category_input_ts_dict.update({data_type: numpy.array(category_input_ts)[index_ls]})
+            category_label_dict.update({data_type: numpy.array(category_label)[index_ls]})
+            category_target_ts_dict.update({data_type: numpy.array(category_target_ts)[index_ls]})
+            category_input_sum_dict.update({data_type: numpy.array(category_input_sum)[index_ls]})
+
+        return category_input_ts_dict, category_label_dict, category_target_ts_dict, category_input_sum_dict
 
     def make_shuffle_k_folds_data(self, x, y, k_folds=5, rand=False):
         """
@@ -219,7 +231,7 @@ class Preprocessing():
 
         return train_x, train_y, test_x, test_y
 
-    def make_test_dataset(self, x, y, save_dir, test_num=10, k_folds=5, rand=False, shuffle=False):
+    def make_test_dataset(self, x, y, target_ts_dict, save_dir, output_dim, test_num=10, k_folds=5, rand=False, shuffle=False):
         """
         実験の再現性確保のため, kfoldのcvを複数回行うデータセットを全て保存しておく.
         """
@@ -238,11 +250,13 @@ class Preprocessing():
         #     else:
         train_x, test_x = x['train'], x['test']
         train_y, test_y = y['train'], y['test']
+        train_target_ts, test_target_ts = target_ts_dict['train'], target_ts_dict['test']
 
-        fold_dir = save_dir + 'page_shuffle/'
-        os.mkdir(fold_dir)
-        numpy.savez(fold_dir + 'train.npz', x=train_x, y=train_y)
-        numpy.savez(fold_dir + 'test.npz', x=test_x, y=test_y)
+        type_dir = save_dir + 'output_dim=%s/' % output_dim
+        os.mkdir(type_dir)
+        numpy.savez(type_dir + 'train.npz', x=train_x, y=train_y)
+        numpy.savez(type_dir + 'test.npz', x=test_x, y=test_y)
+        numpy.savez(type_dir + 'target.npz', train=train_target_ts, test=test_target_ts)
 
     def balancing_sampling(self, x, label):
 

@@ -1,5 +1,7 @@
 #coding:utf-8
 
+import os
+import errno
 import numpy as np
 import sklearn
 from sklearn.linear_model import LogisticRegression
@@ -14,3 +16,13 @@ from sklearn.linear_model import LogisticRegression
 #
 #     def fit(self, X, y):
 #         return self.clf.fit(X, y)
+
+
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
