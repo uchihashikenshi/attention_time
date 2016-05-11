@@ -23,16 +23,16 @@ class tsCNN_net(chainer.Chain):
         h3 = F.relu(self.l1(h2))
         y = self.l2(h3)
 
-        # self.loss = F.sigmoid_cross_entropy(y, t)
+        self.loss = F.sigmoid_cross_entropy(y, t)
 
-        # print self.loss.data
-        #
-        # accuracy = []
-        # y_ = F.array.split_axis.split_axis(y, self.output_dim, 1)
-        # t_ = F.array.split_axis.split_axis(t, self.output_dim, 1)
-        #
-        # for y_ele, t_ele in zip(y_, t_):
-        #     accuracy.append(F.accuracy(y_ele, chainer.Variable(t_ele.data.squeeze())))
-        # self.accuracy = accuracy
+        print self.loss.data
 
-        return y
+        accuracy = []
+        y_ = F.array.split_axis.split_axis(y, self.output_dim, 1)
+        t_ = F.array.split_axis.split_axis(t, self.output_dim, 1)
+
+        for y_ele, t_ele in zip(y_, t_):
+            accuracy.append(F.accuracy(y_ele, chainer.Variable(t_ele.data.squeeze())))
+        self.accuracy = accuracy
+
+        return self.loss
