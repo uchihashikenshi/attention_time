@@ -5,12 +5,12 @@ import chainer.functions as F
 import chainer.links as L
 
 
-class tsCNN_net(chainer.Chain):
+class tsCNN_net_multi(chainer.Chain):
 
     def __init__(self, data_dim, output_dim):
         self.data_dim = data_dim
         self.output_dim = output_dim
-        super(tsCNN_net, self).__init__(
+        super(tsCNN_net_multi, self).__init__(
             conv1=F.Convolution2D(1, 20, (1, 5)),
             conv2=F.Convolution2D(20, 50, (1, 5)),
             l1=L.Linear(250, 500),

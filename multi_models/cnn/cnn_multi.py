@@ -16,10 +16,10 @@ from chainer import serializers
 
 # from chainer.functions.loss import sigmoid_cross_entropy
 
-import cnn_net
+import cnn_net_multi
 
 
-class CNN(object):
+class MultiCNN(object):
 
     def __init__(self, save_model_dir, epoch_num=20, batchsize=50):
         self.save_model_dir = save_model_dir
@@ -38,8 +38,8 @@ class CNN(object):
         train_x = train_x.reshape(N_train, 1, 1, data_dim)
         test_x = test_x.reshape(N_test, 1, 1, data_dim)
 
-        # Prepare multi-layer perceptron model, defined in cnn_net.py
-        model = cnn_net.tsCNN_net(data_dim, output_dim)
+        # Prepare multi-layer perceptron model, defined in cnn_net_multi.py
+        model = cnn_net_multi.tsCNN_net_multi(data_dim, output_dim)
 
         # Setup optimizer
         optimizer = optimizers.Adam()

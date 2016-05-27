@@ -258,33 +258,77 @@ class Preprocessing():
         numpy.savez(type_dir + 'test.npz', x=test_x, y=test_y)
         numpy.savez(type_dir + 'target.npz', train=train_target_ts, test=test_target_ts)
 
-    def balancing_sampling(self, x, label):
+    def balancing_sampling(self, x, label, target, output_dim):
 
-        balanced_x_dict, balanced_label_dict = {}, {}
+        balanced_x_dict, balanced_label_dict, balanced_target_dict = {}, {}, {}
         for data_type in ['train', 'test']:
-
-            label_0_ls, label_1_ls = [], []
-            # label0, 1を分ける
-            for x_ele, label_ele in zip(x, label):
-
-                if label_ele == 1:
-                    label_1_ls.append(x_ele)
+            # label 0, 1を分ける
+            balanced_x, balanced_label, balanced_target = [], [], []
+            for dim in xrange(output_dim):
+                print len(balanced_label)
+                if abs(dim) == 0:
+                    x_, label_, target_ = x[data_type], label[data_type], target[data_type]
                 else:
-                    label_0_ls.append(x_ele)
+                    x_, label_, target_ = balanced_x, balanced_label, balanced_target
+                    balanced_x, balanced_label, balanced_target = [], [], []
 
-            balanced_x, balanced_label = [], []
-            for i in xrange(len(x)):
-                label = numpy.random.choice([0, 1])
-                balanced_label.append(label)
+                label_0_x_ls, label_1_x_ls = [], []
+                label_0_label_ls, label_1_label_ls = [], []
+                label_0_target_ls, label_1_target_ls = [], []
+                for i, x_ele in enumerate(x_):
 
-                if label == 0:
-                    index = numpy.random.randint(len(label_0_ls))
-                    balanced_x.append(label_0_ls[index])
-                else:
-                    index = numpy.random.randint(len(label_1_ls))
-                    balanced_x.append(label_1_ls[index])
+                    label_ele = label_[i]
+                    target_ele = target_[i]
 
-            balanced_x_dict.update({data_type: balanced_x})
-            balanced_label_dict.update({data_type: balanced_label})
+                    if abs(label_ele[dim] - 1) == 0:
+                        label_1_x_ls.append(x_ele)
+                        label_1_label_ls.append(label_ele)
+                        label_1_target_ls.append(target_ele)
+                    else:
+                        label_0_x_ls.append(x_ele)
+                        label_0_label_ls.append(label_ele)
+                        label_0_target_ls.append(target_ele)
 
-        return balanced_x_dict, balanced_label_dict
+                for j in xrange(len(x_)):
+
+                    rand_label = numpy.random.choice([0, 1])
+                    if abs(rand_label - 1) == 0:
+
+                        if len(label_1_label_ls) < 0.0001:
+                            break
+                        index = numpy.random.randint(len(label_1_label_ls))
+
+                        label_1_x_ele, label_1_label_ele, label_1_target_ele = \
+                            label_1_x_ls[index], label_1_label_ls[index], label_1_target_ls[index]
+
+                        label_1_x_ls, label_1_label_ls, label_1_target_ls = \
+                            numpy.delete(label_1_x_ls, index, axis=0), \
+                            numpy.delete(label_1_label_ls, index, axis=0), \
+                            numpy.delete(label_1_target_ls, index, axis=0)
+
+                        balanced_x.append(label_1_x_ele)
+                        balanced_label.append(label_1_label_ele)
+                        balanced_target.append(label_1_target_ele)
+                    else:
+
+                        if len(label_0_label_ls) < 0.0001:
+                            break
+                        index = numpy.random.randint(len(label_0_label_ls))
+
+                        label_0_x_ele, label_0_label_ele, label_0_target_ele = \
+                            label_0_x_ls[index], label_0_label_ls[index], label_0_target_ls[index]
+
+                        label_0_x_ls, label_0_label_ls, label_0_target_ls = \
+                            numpy.delete(label_0_x_ls, index, axis=0), \
+                            numpy.delete(label_0_label_ls, index, axis=0), \
+                            numpy.delete(label_0_target_ls, index, axis=0)
+
+                        balanced_x.append(label_0_x_ele)
+                        balanced_label.append(label_0_label_ele)
+                        balanced_target.append(label_0_target_ele)
+
+            balanced_x_dict.update({data_type: numpy.array(balanced_x)})
+            balanced_label_dict.update({data_type: numpy.array(balanced_label)})
+            balanced_target_dict.update({data_type: numpy.array(balanced_target)})
+
+        return balanced_x_dict, balanced_label_dict, balanced_target_dict

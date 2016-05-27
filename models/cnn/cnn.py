@@ -24,8 +24,8 @@ class CNN():
 
     def train(self, train, test):
 
-        train_x, train_y = train["x"].astype(numpy.float32), train["y"].astype(numpy.int32)
-        test_x, test_y = test["x"].astype(numpy.float32), test["y"].astype(numpy.int32)
+        train_x, train_y = train["x"].astype(numpy.float32), train["y"].astype(numpy.int32).squeeze()
+        test_x, test_y = test["x"].astype(numpy.float32), test["y"].astype(numpy.int32).squeeze()
 
         N_train = train_y.size
         N_test = test_y.size
