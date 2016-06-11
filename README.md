@@ -14,6 +14,6 @@ This project is maintained by Kenshi Uchihashi.
 ## Quickstart
 We are going to working with some example data in data/ folder. It contains delicious dataset, Twitter hashtags, and so on. First run the data-processing code like this:
 
-'''
+```
 python preprocessing.py
-'''
+```
