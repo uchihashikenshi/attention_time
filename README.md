@@ -23,3 +23,22 @@ python preprocessing.py
 #### Data options 
 
 * ```data_dir```: 
+* 
+
+### Training options()
+#### Data options
+
+#### Model options
+
+#### Optimization options
+
+#### Other options
+
+### Evaluation options()
+
+### Visualization options()
+
+### Acknowledgements
+Our implementation utilizes code from the following:
+
+### Licence
