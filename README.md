@@ -17,3 +17,9 @@ We are going to working with some example data in data/ folder. It contains deli
 ```
 python preprocessing.py
 ```
+
+## Details
+### Preprocessing options(```preprocessing.py```)
+#### Data options 
+
+* ```data_dir```: 
