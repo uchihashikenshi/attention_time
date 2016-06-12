@@ -1,5 +1,6 @@
-#coding:utf-8
+# coding:utf-8
 import numpy
+import six
 import sklearn
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
@@ -42,7 +43,7 @@ class Preprocessing():
 
         return vol_ls
 
-    def timeseries(self, data, sum_min=100):
+    def make_ts_normal_representation(self, data, sum_min=100):
         """
         :param data: Opened text object of data.
         :param sum_min: Threshold of bookmark volume.
@@ -65,7 +66,7 @@ class Preprocessing():
                 sum = int(list[i-1][0])
 
                 if sum > sum_min:
-                    timeseries = [0 for j in xrange(1600)]
+                    timeseries = [0 for j in six.moves.range(1600)]
 
                     for bookmark_id_day in list[i - 1][1:]:
                         day = int(bookmark_id_day.split(":")[1])
@@ -74,7 +75,8 @@ class Preprocessing():
                     category_ts.append(numpy.array(timeseries))
                     category_sum.append(sum)
 
-            else: break
+            else:
+                break
 
         return category_ts, category_sum
 

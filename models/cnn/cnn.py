@@ -14,6 +14,7 @@ from chainer import serializers
 
 import cnn_net
 
+
 class CNN():
 
     def __init__(self, save_model_dir, epoch_num=20, batchsize=50):
