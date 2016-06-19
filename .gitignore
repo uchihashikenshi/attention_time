@@ -8,7 +8,7 @@ models/gbdt/results_past
 results
 local
 original_data
-data/
+data/datasets/
 .idea/
 
 # Byte-compiled / optimized / DLL files

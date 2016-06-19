@@ -8,7 +8,7 @@ import os
 import sys
 
 
-class Preprocessing():
+class PreprocessingPast(object):
     """
     data: Input data. Must be pandas object.
     k_folds: Number of folds of cross validation. Must be at least 2.
