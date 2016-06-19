@@ -18,7 +18,7 @@ from sklearn.linear_model import LogisticRegression
 #         return self.clf.fit(X, y)
 
 
-def mkdir_p(path):
+def mkdirs(path):
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
