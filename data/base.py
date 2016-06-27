@@ -21,7 +21,6 @@ class BaseDataManager(object):
     #
     #     if not os.path.exists(data_home):
     #         raise NameError
-ls
 
     def load_data(self, path):
         """

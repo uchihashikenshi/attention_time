@@ -1,3 +1,6 @@
+*.json
+*.h5
+
 multi_models/cnn/results
 multi_models/gbdt/results
 

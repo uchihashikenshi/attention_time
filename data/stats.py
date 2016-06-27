@@ -19,5 +19,13 @@ class Stats(BaseDataManager):
             save_data_dir=save_data_dir
         )
 
-    def pattern_analysis(self):
-        pass
+    @staticmethod
+    def pattern_analysis(label, pattern):
+        if type(pattern) == 'list':
+            pattern = numpy.array(pattern)
+        ref = [0, 0]
+        for label_ele in label:
+            for i, pattern_ele in enumerate(pattern):
+                res = label_ele == pattern_ele
+                if res.all():
+                    ref[i] += 1
