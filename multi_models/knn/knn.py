@@ -1,6 +1,7 @@
 # coding:utf-8
 import numpy
-import fastdtw
+import sys
+from fastdtw import fastdtw
 
 
 class KNearestNeighbor(object):
@@ -8,40 +9,56 @@ class KNearestNeighbor(object):
     def __init__(self):
         pass
 
-    def get_nearest_n_dtw(self, train, label, test):
+    def param_new(self, k, output_dim):
+        self.k = k
+        self.output_dim = output_dim
+
+    def fit(self, test, train, label, k, output_dim, metrics="euclidean"):
         """
-        :param train: Training dataset. Must be pandas object.
-        :param label: Training label.
-        :param test: Some point of test data. Must be numpy array object.
-        :return: The nearest points of training dataset (with DTW metrics).
+        :param test: Test data. Must be Numpy object.
+        :param train: Labeled data. Must be Numpy object.
+        :param label: Label for labeled data.
+        :param k: Number of nearest neighbors.
+        :param output_dim: Dimension of label.
+        :param metrics: Distance measure of kNN. Default value is euclidean.
+        :return: The nearest points of training data (with any metrics).
         """
-        nn_dist_array, nn_ts_ls, nn_label_array = numpy.array([]), [], numpy.array([])
-        te_ele = numpy.array(test).reshape(-1, 1)
+        self.param_new(k, output_dim)
+        nn_dist_array, nn_ts_array, nn_label_array = \
+            numpy.array([]), numpy.empty((0, 30), int), numpy.empty((0, self.output_dim), int)
 
-        for i, tr_ele in enumerate(train):
+        for i, te_ele in enumerate(test):
 
-            # sys.stdout.write('\r%d' % i)
-            # sys.stdout.flush()
+            sys.stdout.write('\r%d' % i)
+            sys.stdout.flush()
 
-            tr_ele_ls = tr_ele.tolist()
-            tr_ele = numpy.array(tr_ele).reshape(-1, 1)
-            dist, path = fastdtw(te_ele, tr_ele, dist=euclidean)
+            for tr_ele, label_ele in zip(train, label):
 
-            if len(nn_dist_array) < self.nn_num:
-                nn_dist_array = numpy.append(nn_dist_array, dist)
-                nn_ts_ls.append(tr_ele_ls)
-                nn_label_array = numpy.append(nn_label_array, label[i])
-            elif numpy.max(nn_dist_array) > dist:
+                if metrics == "dtw":
+                    dist, path = fastdtw(te_ele, tr_ele)
+                elif metrics == "euclidean":
+                    dist = self.euclidean(te_ele)
+                else:
+                    NotImplementedError()
 
-                if numpy.max(nn_dist_array) < self.max_dist:
-                    break
+                if len(nn_dist_array) < self.k:
 
-                max_ind = numpy.argmax(nn_dist_array)
-                nn_dist_array[max_ind] = dist
-                nn_ts_ls[max_ind] = tr_ele_ls
-                nn_label_array[max_ind] = label[i]
-            else:
-                continue
-        nn_ts_array = numpy.array(nn_ts_ls)
+                    nn_dist_array = numpy.append(nn_dist_array, dist)
+                    nn_ts_array = numpy.append(nn_ts_array, numpy.array([tr_ele]), axis=0)
+                    nn_label_array = numpy.append(nn_label_array, numpy.array([label_ele]), axis=0)
+                elif numpy.max(nn_dist_array) > dist:
+
+                    max_ind = numpy.argmax(nn_dist_array)
+                    nn_dist_array[max_ind] = dist
+                    nn_ts_array[max_ind] = tr_ele
+                    nn_label_array[max_ind] = label_ele
+                else:
+                    continue
 
         return nn_dist_array, nn_ts_array, nn_label_array
+
+    def euclidean(self, data):
+        return 0
+
+    def prediction(self):
+        pass
