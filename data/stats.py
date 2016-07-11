@@ -23,9 +23,11 @@ class Stats(BaseDataManager):
     def pattern_analysis(label, pattern):
         if type(pattern) == 'list':
             pattern = numpy.array(pattern)
-        ref = [0, 0]
+        ref = [0 for i in six.moves.range(label.shape[0])]
         for label_ele in label:
             for i, pattern_ele in enumerate(pattern):
                 res = label_ele == pattern_ele
                 if res.all():
                     ref[i] += 1
+
+        return ref

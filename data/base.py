@@ -22,7 +22,7 @@ class BaseDataManager(object):
     #     if not os.path.exists(data_home):
     #         raise NameError
 
-    def load_data(self, path):
+    def load_raw_data(self, path):
         """
         :param path: Data path.
         :return: data: Loaded data.
@@ -30,6 +30,20 @@ class BaseDataManager(object):
         data = open(self.raw_data_dir + path)
 
         return data
+
+    def load_normal_representation_data(self, output_dim, data_type='balance', category_name='ajax'):
+        """
+        :param data_type:
+        :param category_name:
+        :param output_dim:
+        :return:
+        """
+        save_data_dir = '%s%s/' % (self.save_data_dir, data_type)
+        train = numpy.load(save_data_dir + category_name + '/output_dim=%s/train.npz' % output_dim)
+        test = numpy.load(save_data_dir + category_name + '/output_dim=%s/test.npz' % output_dim)
+        target = numpy.load(save_data_dir + category_name + '/output_dim=%s/target.npz' % output_dim)
+
+        return train, test, target
 
     def div_train_test(self, ts_ls, train_test_ratio, div_type='web'):
         """
@@ -77,6 +91,7 @@ class BaseDataManager(object):
 
                     if start_flag:
                         started_ts.append(ts_ele)
+
 
                 started_ts_ls.append(started_ts)
 

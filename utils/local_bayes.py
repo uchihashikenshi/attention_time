@@ -19,13 +19,13 @@ from chainer import optimizers
 from chainer import serializers
 from chainer import Link, Chain, ChainList
 
+
 class LocalBayes():
 
     def __init__(self, nn_num, data_dim, max_dist):
         self.nn_num = nn_num
         self.data_dim = data_dim
         self.max_dist = max_dist
-
 
     def get_nearest_n_dtw(self, train, label, test):
         """
@@ -64,7 +64,6 @@ class LocalBayes():
         nn_ts_array = numpy.array(nn_ts_ls)
 
         return nn_dist_array, nn_ts_array, nn_label_array
-
 
     def get_nearest_n(self, train, label, test, data_structure):
         neigh = NearestNeighbors(n_neighbors=20, metric='euclidean')
